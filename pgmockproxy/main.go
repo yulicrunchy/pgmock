@@ -30,24 +30,28 @@ func main() {
 		log.Fatal(err)
 	}
 
-	clientConn, err := ln.Accept()
-	if err != nil {
-		log.Fatal(err)
-	}
+	for {
+		clientConn, err := ln.Accept()
+		if err != nil {
+			log.Fatal(err)
+		}
+		go func() {
 
-	listenNetwork := "tcp"
-	if _, err := os.Stat(options.remoteAddress); err == nil {
-		listenNetwork = "unix"
-	}
+			listenNetwork := "tcp"
+			if _, err := os.Stat(options.remoteAddress); err == nil {
+				listenNetwork = "unix"
+			}
 
-	serverConn, err := net.Dial(listenNetwork, options.remoteAddress)
-	if err != nil {
-		log.Fatal(err)
-	}
+			serverConn, err := net.Dial(listenNetwork, options.remoteAddress)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-	proxy := proxy.NewProxy(clientConn, serverConn)
-	err = proxy.Run()
-	if err != nil {
-		log.Fatal(err)
+			proxy := proxy.NewProxy(clientConn, serverConn)
+			proxy.Run()
+			/*if err != nil {
+				log.Fatal(err)
+			}*/
+		}()
 	}
 }
