@@ -1,8 +1,6 @@
 package proxy
 
 import (
-	"encoding/json"
-	"fmt"
 	"net"
 
 	"github.com/jackc/pgproto3/v2"
@@ -47,25 +45,13 @@ func (p *Proxy) Run() error {
 	for {
 		select {
 		case msg := <-frontendMsgChan:
-			buf, err := json.Marshal(msg)
-			if err != nil {
-				return err
-			}
-			fmt.Println("F", string(buf))
-
-			err = p.frontend.Send(msg)
+			err := p.frontend.Send(msg)
 			if err != nil {
 				return err
 			}
 			frontendNextChan <- struct{}{}
 		case msg := <-backendMsgChan:
-			buf, err := json.Marshal(msg)
-			if err != nil {
-				return err
-			}
-			fmt.Println("B", string(buf))
-
-			err = p.backend.Send(msg)
+			err := p.backend.Send(msg)
 			if err != nil {
 				return err
 			}
